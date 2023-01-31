@@ -1,6 +1,6 @@
 ---
 title: "Assignment 1: Introduction"
-author: "Student Name"
+author: "Laura Exar"
 output: pdf_document
 geometry: margin=2.54cm
 ---
@@ -39,22 +39,22 @@ Enter answers to the questions just below the >Answer: prompt.
 
 1. What are your previous experiences with data analytics, R, and Git? Include both formal and informal training.
 
-> Answer: 
+> Answer: My experience with data analytics is very limited, and was touched on in a few courses in undergrad. In my undergrad, I worked on a research project for three semesters where we used R Studio, but that was several years ago so I am out of practice. The training for this project was fairly informal (my research professor would just tell us how to do different steps), and I took one more formal class on statistics and R Studio. I have never used Git.
 
 2. Are there any components of the course about which you feel confident?
 
-> Answer: 
+> Answer: I generally feel pretty confident about the components of this course, and I think I will remember how to use R Studio from my previous experience. I have also heard very good things about this course from past students, which makes me excited for the course to start and also feel more confident about the different aspects of it.
 
 3. Are there any components of the course about which you feel apprehensive?
 
-> Answer: 
+> Answer: I'm apprehensive about figuring out Git, as well as a little apprehensive about the format of a flipped classroom course in general. I'm worried I'll miss something! I'm also worried my laptop won't make it through the semester, but I chose the "container" option so hopefully I'm prepared if anything happens!
 
 
 ## 3) GitHub
 
 Provide a link below to your forked course repository in GitHub. Make sure you have pulled all recent changes from the course repository and that you have updated your course README file, committed those changes, and pushed them to your GitHub account. 
 
-> Answer: 
+> Answer: https://github.com/lauraexar/EDA-Spring2023
 
 ## 4) Knitting
 When you have completed this document, click the `knit` button.This should produce a PDF copy of your markdown document. Submit this PDF to Sakai. 
