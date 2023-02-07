@@ -70,7 +70,7 @@ ggplot(na.omit(USGS.flow.data), aes(x = discharge.mean.approval)) + geom_bar()
 
 Visualize distributions of values for continuous numerical variables. What is happening in each line of code? Insert a comment above each line.
 
-```{r, fig.height = 3, fig.width = 4}
+```{r histogram, fig.height = 3, fig.width = 4}
 # Histogram with default 30 bins, between 5 and 20 is good
 ggplot(USGS.flow.data) +
   geom_histogram(aes(x = discharge.mean))
