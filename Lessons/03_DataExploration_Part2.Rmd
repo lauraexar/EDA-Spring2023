@@ -19,6 +19,8 @@ editor_options:
 
 Why is data exploration our first step in analyzing a dataset? What information do we gain? How does data exploration aid in our decision-making for data analysis steps further down the pipeline?
 
+We need to understand our data to know its uses, limitations, assumptions, structure, and patterns in our data before we start to dig into it. Knowing the data is the first step to analyzing the data.   
+
 ## Import data and view summaries
 
 ```{r, message = FALSE}
@@ -60,9 +62,6 @@ Visualize count data for categorical variables.
 ```{r, fig.height = 3, fig.width = 4}
 ggplot(USGS.flow.data, aes(x = discharge.mean.approval)) +
   geom_bar()
-
-
-
 ```
 
 ### Histogram (function: geom_histogram)
