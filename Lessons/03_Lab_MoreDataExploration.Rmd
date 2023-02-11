@@ -113,8 +113,8 @@ f2C <- function(F){
     C <- round(((F-32)*(5/9)))
     return(C)
 }
-HighsC <- f2C(Highs)
-LowsC <- f2C(Lows)
+HighsC <- f2C(HighsF)
+LowsC <- f2C(LowsF)
 
 ```
 

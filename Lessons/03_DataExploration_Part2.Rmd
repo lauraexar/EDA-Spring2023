@@ -159,16 +159,16 @@ Question: under what circumstances would it be beneficial to use each of these g
 ## Ending discussion
 
 What did you learn about the USGS discharge dataset today? What separate insights did the different graph types offer?
-> Answer: 
+> Answer: I learned how far back the USGS discharge dataset goes--I didn't know that they've been collecting data for so long! The different graphs represented the data in such different ways--some were more intuitive to interpret and relevant to our data than others!
 
 
 How can multiple options for data exploration inform our understanding of our data?
 
-> Answer: 
+> Answer: The options for data exploration and variety of charts were facinating to explore! Some of the were easier to interpret and more inuitive than others, and some of them seemed more relevant for our data than others. It made me think more about how data is represented, and how this representation can completely shape how the data is interpreted and what the audience takes away from it.
 
 
 Do you see any patterns in the USGS data for the Eno River? What might be responsible for those patterns and/or relationships?
 
-> Answer: 
+> Answer: It seemed like the gage height mean and the discharge mean were positively correlated. Based on the scatter plot, it also seemed like the discharge mean has remained similiar throughout the years, although there is a gap in the data stretching from the early 1970s to mid 1980s.The gage height mean and discharge mean correlation makes sense, as a gage that has a greater amount of discharge would also likely be higher.
 
 
