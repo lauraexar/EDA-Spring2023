@@ -19,7 +19,7 @@ Today we will work with a dataset from the [North Temperate Lakes Long-Term Ecol
 
 Opening discussion: why might we be interested in long-term observations of temperature, oxygen, and light in lakes?
 
-> Add notes here: 
+> Add notes here: We may be interested in looking at this type of data because 
 
 ```{r, message = FALSE}
 getwd()
@@ -29,11 +29,11 @@ library(tidyverse)
 library(lubridate)
 NTL.phys.data <- read.csv("./Data/Raw/NTL-LTER_Lake_ChemistryPhysics_Raw.csv", stringsAsFactors = TRUE)
 
-colnames(NTL.phys.data)
-head(NTL.phys.data)
-summary(NTL.phys.data)
-str(NTL.phys.data)
-dim(NTL.phys.data)
+colnames(NTL.phys.data) #name of all of the columns that we imported
+head(NTL.phys.data) #first six observations of data set
+summary(NTL.phys.data) #summary for each of the columns
+str(NTL.phys.data) #what is the data type of each column
+dim(NTL.phys.data) #what is the dimension of the dataset
 
 class(NTL.phys.data$sampledate)
 # Format sampledate as date
@@ -63,27 +63,27 @@ vignette("dplyr")
 Filtering allows us to choose certain rows (observations) in our dataset.
 
 Here are the relevant commands used in the `filter` function. Add some notes to designate what these commands mean. 
-`==`
-`!=`
-`<`
-`<=`
-`>`
-`>=`
-`&`
-`|`
+`==` #compare value to a specific value, like for 'if' statements
+`!=` #check in values are different
+`<` #check if values are less than a number
+`<=` #check if values are less than or equal to a number
+`>`#check if values are greater than a number
+`>=` #check if values are greater than or equal to a number
+`&` #aggregate multiple conditions, if you want them both to be true
+`|` #aggregate multiple conditions, if you want one or the other to be true
 
 ```{r}
-class(NTL.phys.data$lakeid)
-class(NTL.phys.data$depth)
+class(NTL.phys.data$lakeid) #character
+class(NTL.phys.data$depth) #numeric
 
 # matrix filtering
-NTL.phys.data.surface1 <- NTL.phys.data[NTL.phys.data$depth == 0,]
+NTL.phys.data.surface1 <- NTL.phys.data[NTL.phys.data$depth == 0,] #filtering only rows that have 0 in column depth
 
 # dplyr filtering
 NTL.phys.data.surface2 <- filter(NTL.phys.data, depth == 0)
 NTL.phys.data.surface3 <- filter(NTL.phys.data, depth < 0.25)
 
-# Did the methods arrive at the same result?
+# Did the methods arrive at the same result? Yes, the dimensions and teh first six observations are the same.
 head(NTL.phys.data.surface1)
 dim(NTL.phys.data.surface1)
 head(NTL.phys.data.surface2)
@@ -92,34 +92,38 @@ head(NTL.phys.data.surface3)
 dim(NTL.phys.data.surface3)
 
 # Choose multiple conditions to filter
-summary(NTL.phys.data$lakename)
-NTL.phys.data.PeterPaul1 <- filter(NTL.phys.data, lakename == "Paul Lake" | lakename == "Peter Lake")
+summary(NTL.phys.data$lakename) #lake names with the most appearances
+NTL.phys.data.PeterPaul1 <- filter(NTL.phys.data, lakename == "Paul Lake" | lakename == "Peter Lake") #select all instances of all instances of Paul Lake or Peter Lake
 NTL.phys.data.PeterPaul2 <- filter(NTL.phys.data, lakename != "Central Long Lake" & 
                                      lakename != "Crampton Lake" & lakename != "East Long Lake" &
                                      lakename != "Hummingbird Lake" & lakename != "Tuesday Lake" &
                                      lakename != "Ward Lake" & lakename != "West Long Lake")
-NTL.phys.data.PeterPaul3 <- filter(NTL.phys.data, lakename %in% c("Paul Lake", "Peter Lake"))
+#could exclude all other lakes to find the instances of Paul Lake and Peter Lake
+NTL.phys.data.PeterPaul3 <- filter(NTL.phys.data, lakename %in% c("Paul Lake", "Peter Lake")) #useful for selecting based on multiple elements
 
 # Choose a range of conditions of a numeric or integer variable
 summary(NTL.phys.data$daynum)
-NTL.phys.data.JunethruOctober1 <- filter(NTL.phys.data, daynum > 151 & daynum < 305)
-NTL.phys.data.JunethruOctober2 <- filter(NTL.phys.data, daynum > 151, daynum < 305)
-NTL.phys.data.JunethruOctober3 <- filter(NTL.phys.data, daynum >= 152 & daynum <= 304)
-NTL.phys.data.JunethruOctober4 <- filter(NTL.phys.data, daynum %in% c(152:304))
+NTL.phys.data.JunethruOctober1 <- filter(NTL.phys.data, daynum > 151 & daynum < 305) # '&' to include both
+NTL.phys.data.JunethruOctober2 <- filter(NTL.phys.data, daynum > 151, daynum < 305)# ',' to include both
+NTL.phys.data.JunethruOctober3 <- filter(NTL.phys.data, daynum >= 152 & daynum <= 304) #can use greater than or equal and less than or equal
+NTL.phys.data.JunethruOctober4 <- filter(NTL.phys.data, daynum %in% c(152:304)) #selects the values including and in between these numbers
 
 # Exercise: 
 # filter NTL.phys.data for the year 1999
 # what code do you need to use, based on the class of the variable?
 class(NTL.phys.data$year4)
+Year1999 <- filter(NTL.phys.data, year4 == 1999)
 
 # Exercise: 
 # filter NTL.phys.data for Tuesday Lake from 1990 through 1999.
-
+class(NTL.phys.data$lakename)
+TuesdayLake <- filter(NTL.phys.data, lakename == "Tuesday Lake")
+TuesdayLake90_99 <- filter(TuesdayLake, year4 %in% c(1990:1999))
 
 ```
 Question: Why don't we filter using row numbers?
 
-> Answer: 
+> Answer: We want to filter by different variables, which are the columns. The rows are observations, which we don't want to filter by.
 
 ### Arrange
 
@@ -131,8 +135,9 @@ NTL.phys.data.depth.descending <- arrange(NTL.phys.data, desc(depth))
 
 # Exercise: 
 # Arrange NTL.phys.data by temperature, in descending order. 
-# Which dates, lakes, and depths have the highest temperatures?
+# Which dates, lakes, and depths have the highest temperatures? The highest temperature was on 1998-07-16 at East Long Lake at a depth of 0.5. The second highest temperature was on 2002-07-01 at Hummingbird Lake at a depth of 0. The third highest temperature was on 2002-07-19 at Hummingbird Lake at a depth of 0.
 
+NTL.phys.data.temp.descending <- arrange(NTL.phys.data, desc(temperature_C))
 
 ```
 ### Select
@@ -140,7 +145,7 @@ NTL.phys.data.depth.descending <- arrange(NTL.phys.data, desc(depth))
 Selecting allows us to choose certain columns (variables) in our dataset.
 
 ```{r}
-NTL.phys.data.temps <- select(NTL.phys.data, lakename, sampledate:temperature_C)
+NTL.phys.data.temps <- select(NTL.phys.data, lakename, sampledate:temperature_C) #creates a tidier dataset with only the columns that you are interested in working with
 
 ```
 ### Mutate
@@ -148,7 +153,7 @@ NTL.phys.data.temps <- select(NTL.phys.data, lakename, sampledate:temperature_C)
 Mutating allows us to add new columns that are functions of existing columns. Operations include addition, subtraction, multiplication, division, log, and other functions.
 
 ```{r}
-NTL.phys.data.temps <- mutate(NTL.phys.data.temps, temperature_F = (temperature_C*9/5) + 32)
+NTL.phys.data.temps <- mutate(NTL.phys.data.temps, temperature_F = (temperature_C*9/5) + 32) #adding a new column to an existing dataset
 
 ```
 
@@ -165,7 +170,7 @@ NTL.phys.data.PeterPaul1 <- select(NTL.phys.data.PeterPaul1, lakeid:daynum, mont
 
 # find out the start and end dates of the dataset
 interval(NTL.phys.data.PeterPaul1$sampledate[1], NTL.phys.data.PeterPaul1$sampledate[21613])
-interval(first(NTL.phys.data.PeterPaul1$sampledate), last(NTL.phys.data.PeterPaul1$sampledate))
+interval(first(NTL.phys.data.PeterPaul1$sampledate), last(NTL.phys.data.PeterPaul1$sampledate)) #better approach that will work for any size dataset
 ```
 
 
@@ -196,4 +201,4 @@ write.csv(NTL.phys.data.PeterPaul1, row.names = FALSE, file = "./Data/Processed/
 
 When we wrangle a raw dataset into a processed dataset, we create a code file that contains only the wrangling code. We then save the processed dataset as a new spreadsheet and then create a separate code file to analyze and visualize the dataset. Why do we keep the wrangling code separate from the analysis code?
 
-
+We want to keep the wrangling code separate from the analysis code because if we did everything in the same document, we would have a really long rmd file, where you could easily get lost. It's good practice to save processed data after you are done wrangling and then create a separate code file to analyze and visualize the dataset. Keeping the wrangling code separate from the analysis code will result in a cleaner, shorter r script, which is preferrable for reproducibility. 
