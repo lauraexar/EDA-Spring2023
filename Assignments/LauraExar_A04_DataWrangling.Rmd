@@ -1,6 +1,6 @@
 ---
 title: "Assignment 4: Data Wrangling"
-author: "Student Name"
+author: "Laura Exar"
 date: "Spring 2023"
 output: pdf_document
 geometry: margin=2.54cm
