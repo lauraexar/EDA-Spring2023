@@ -10,7 +10,7 @@ geometry: margin=2.54cm
 #This code chunk will tidy your knit PDF files, wrapping long code lines
 #For it to work, the "formatR" package needs to be installed
 
-#install.packages('formatR')
+install.packages('formatR')
 knitr::opts_chunk$set(tidy.opts=list(width.cutoff=80), tidy=TRUE)
 ```
 
@@ -39,14 +39,41 @@ The completed exercise is due on Friday, Feb 20th @ 5:00pm.
 
 2. Apply the `glimpse()` function to reveal the dimensions, column names, and structure of each dataset. 
 
-```{r, message = FALSE}
-#1a 
+```{r Setting up the session, message = FALSE}
+#1a Load necessary packages
+library(tidyverse)
+library(lubridate)
+library(here)
 
-#1b 
+#1b Check working directory
+getwd()
 
-#1c 
+#1c Read in four raw data files
+O3_2018 <- read.csv(
+  file=here("Data/Raw/EPAair_O3_NC2018_raw.csv"), 
+  stringsAsFactors = TRUE
+)
 
-#2 
+O3_2019 <- read.csv(
+  file=here("Data/Raw/EPAair_O3_NC2019_raw.csv"), 
+  stringsAsFactors = TRUE
+)
+
+PM25_2018 <- read.csv(
+  file=here("Data/Raw/EPAair_PM25_NC2018_raw.csv"), 
+  stringsAsFactors = TRUE
+)
+
+PM25_2019 <- read.csv(
+  file=here("Data/Raw/EPAair_PM25_NC2019_raw.csv"), 
+  stringsAsFactors = TRUE
+)
+
+#2 Look at datasets dimensions, columns names, and structure
+glimpse(O3_2018)
+glimpse(O3_2019)
+glimpse(PM25_2018)
+glimpse(PM25_2019)
 
 ```
 
@@ -61,15 +88,39 @@ The completed exercise is due on Friday, Feb 20th @ 5:00pm.
 
 6. Save all four processed datasets in the Processed folder. Use the same file names as the raw files but replace "raw" with "processed".
 
-```{r}
-#3
+```{r Wranging Datasets and Creating Processed Files}
+#3 Change dates into date objects
+O3_2018$Date <- as.Date(O3_2018$Date, format = "%m/%d/%Y")
+O3_2019$Date <- as.Date(O3_2019$Date, format = "%m/%d/%Y")
+PM25_2018$Date <- as.Date(PM25_2018$Date, format = "%m/%d/%Y")
+PM25_2019$Date <- as.Date(PM25_2019$Date, format = "%m/%d/%Y")
 
-#4
+#4 Select specific columns
+O3_2018.AQI.Site <- select(O3_2018, Date, DAILY_AQI_VALUE, Site.Name, AQS_PARAMETER_DESC, COUNTY, SITE_LATITUDE, SITE_LONGITUDE)
 
-#5
+O3_2019.AQI.Site <- select(O3_2019, Date, DAILY_AQI_VALUE, Site.Name, AQS_PARAMETER_DESC, COUNTY, SITE_LATITUDE, SITE_LONGITUDE)
 
-#6
+PM25_2018.AQI.Site <- select(PM25_2018, Date, DAILY_AQI_VALUE, Site.Name, AQS_PARAMETER_DESC, COUNTY, SITE_LATITUDE, SITE_LONGITUDE)
 
+PM25_2019.AQI.Site <- select(PM25_2019, Date, DAILY_AQI_VALUE, Site.Name, AQS_PARAMETER_DESC, COUNTY, SITE_LATITUDE, SITE_LONGITUDE)
+
+#5 Fill all cells of a column
+PM25_2018.AQI.Site <- mutate(PM25_2018.AQI.Site, AQS_PARAMETER_DESC = "PM2.5")
+
+PM25_2019.AQI.Site <- mutate(PM25_2019.AQI.Site, AQS_PARAMETER_DESC = "PM2.5")
+
+#6 Save processed datasets
+write.csv(O3_2018.AQI.Site, row.names = FALSE, 
+          file = "./Data/Processed/O3_2018.AQI.Site_Processed.csv")
+
+write.csv(O3_2019.AQI.Site, row.names = FALSE, 
+          file = "./Data/Processed/O3_2019.AQI.Site_Processed.csv")
+
+write.csv(PM25_2018.AQI.Site, row.names = FALSE, 
+          file = "./Data/Processed/PM25_2018.AQI.Site_Processed.csv")
+
+write.csv(PM25_2019.AQI.Site, row.names = FALSE, 
+          file = "./Data/Processed/PM25_2019.AQI.Site_Processed.csv")
 ```
 
 
@@ -93,16 +144,30 @@ The completed exercise is due on Friday, Feb 20th @ 5:00pm.
 
 11. Save your processed dataset with the following file name: "EPAair_O3_PM25_NC1819_Processed.csv"
 
-```{r}
-#7 
+```{r Combine Datasets}
+#7 Combine datasets 
+EPA.air <- rbind(O3_2018.AQI.Site, O3_2019.AQI.Site, PM25_2018.AQI.Site, PM25_2019.AQI.Site)
 
-#8 
+#8 Wrangle dataset based on conditions 
+EPA.air <- 
+  EPA.air %>% 
+  filter(Site.Name == "Linville Falls" | Site.Name == "Durham Armory" | Site.Name == "Leggett" | Site.Name == "Hattie Avenue" | Site.Name == "Clemmons Middle" | Site.Name == "Mendenhall School" | Site.Name == "Frying Pan Mountain"| Site.Name == "West Johnston Co." | Site.Name == "Garinger High School" | Site.Name == "Castle Hayne"| Site.Name == "Pitt Agri. Center"| Site.Name == "Bryson City"| Site.Name == "Millbrook School") %>%
+  group_by(Date, Site.Name, AQS_PARAMETER_DESC, COUNTY) %>%
+  summarise(meanAQI = mean(DAILY_AQI_VALUE), 
+            meanlat = mean(SITE_LATITUDE), 
+            meanlong = mean(SITE_LONGITUDE)) %>%
+  mutate(month = month(Date)) %>%
+  mutate(year = year(Date))
 
-#9
+#9 Spread dataset to separate AQI values
+EPA.air <- pivot_wider(EPA.air, names_from = AQS_PARAMETER_DESC, values_from = meanAQI)
 
-#10
+#10 Find dimensions of dataset
+dim(EPA.air)
 
-#11
+#11 Save processed dataset
+write.csv(EPA.air, row.names = FALSE, 
+          file = "./Data/Processed/EPAair_O3_PM25_NC1819_Processed.csv")
 
 ```
 
@@ -113,16 +178,21 @@ The completed exercise is due on Friday, Feb 20th @ 5:00pm.
 
 13. Call up the dimensions of the summary dataset.
 
-```{r}
+```{r Generate summary tables}
 
-#12
+#12 Generate summary data frame
+EPA.air <- 
+  EPA.air %>% 
+  group_by(Site.Name, month, year) %>%
+  summarise(meanAQI.PM2.5 = mean(PM2.5), 
+            meanAQI.Ozone = mean(Ozone)) %>%
+  drop_na(meanAQI.Ozone)
 
-
-#13
-
+#13 Find dimensions of the summary dataset
+dim(EPA.air)
 
 ```
 
 14. Why did we use the function `drop_na` rather than `na.omit`?
 
-> Answer: 
+> Answer: While both functions delete the rows containing NAs, 'drop_na' is part of the tidyr package, which we are using for this project.
