@@ -20,16 +20,19 @@ Effective data visualization depends on purposeful choices about graph types. Th
 
 ```{r, message = FALSE, warning = FALSE}
 library(tidyverse);library(lubridate);library(here)
+install.packages(ggridges) #couldn't download this package
 library(ggridges)
 
 here()
 
+#import dataset
 PeterPaul.chem.nutrients <- 
   read.csv(here("Data/Processed_KEY/NTL-LTER_Lake_Chemistry_Nutrients_PeterPaul_Processed.csv"), stringsAsFactors = TRUE)
 PeterPaul.chem.nutrients.gathered <-
   read.csv(here("Data/Processed_KEY/NTL-LTER_Lake_Nutrients_PeterPaulGathered_Processed.csv"), stringsAsFactors = TRUE)
 EPAair <- read.csv(here("Data/Processed_KEY/EPAair_O3_PM25_NC1819_Processed.csv"), stringsAsFactors = TRUE)
 
+#changed dates into dates
 EPAair$Date <- ymd(EPAair$Date)
 PeterPaul.chem.nutrients$sampledate <- ymd(PeterPaul.chem.nutrients$sampledate)
 PeterPaul.chem.nutrients.gathered$sampledate <- ymd(PeterPaul.chem.nutrients.gathered$sampledate)
@@ -90,8 +93,13 @@ O3plot2 <- ggplot(EPAair) +
   geom_point(aes(x = Date, y = Ozone, color = "blue"))
 print(O3plot2)
 
+#the color needs to be outside of the () to change the chart color
+O3plot2 <- ggplot(EPAair) +
+  geom_point(aes(x = Date, y = Ozone), color = "blue")
+print(O3plot2)
+
 # Add additional variables
-# How could you automatically assign a marker color to a variable? 
+# How could you automatically assign a marker color to a variable? Color as a function of site name
 PMplot <- 
   ggplot(EPAair, aes(x = Month, y = PM2.5, shape = as.factor(Year), color = Site.Name)) +
   geom_point()
@@ -104,16 +112,16 @@ PMplot.faceted <-
   facet_wrap(vars(Site.Name), nrow = 3)
 print(PMplot.faceted)
 
-# Filter dataset within plot building and facet by multiple variables
+# Filter dataset within plot building and facet by multiple variables, subset by site name
 PMplot.faceted2 <- 
   ggplot(subset(EPAair, Site.Name == "Clemmons Middle" | Site.Name == "Leggett" |
-                  Site.Name == "Bryson City"), 
+                  Site.Name == "Bryson City"), #rows representing sites
          aes(x = Month, y = PM2.5)) + 
   geom_point() +
-  facet_grid(Site.Name ~ Year) 
+  facet_grid(Site.Name ~ Year) #column representing years
 print(PMplot.faceted2)
 
-# Plot true time series with geom_line
+# Plot true time series with geom_line, line plot taht connects the points
 PMplot.line <- 
   ggplot(subset(EPAair, Site.Name == "Leggett"), 
          aes(x = Date, y = PM2.5)) +
@@ -133,7 +141,7 @@ lightvsDO <-
   geom_point()
 print(lightvsDO)
 
-# Adjust axes
+# Adjust axes, excludes outliers
 lightvsDOfixed <- 
   ggplot(PeterPaul.chem.nutrients, aes(x = irradianceWater, y = dissolvedOxygen)) +
   geom_point() +
@@ -152,8 +160,8 @@ print(tempvsdepth)
 NvsP <-
   ggplot(PeterPaul.chem.nutrients, aes(x = tp_ug, y = tn_ug, color = depth)) +
   geom_point() +
-  geom_smooth(method = lm) +
-  geom_abline(aes(slope = 16, intercept = 0))
+  geom_smooth(method = lm) + #added trendline
+  geom_abline(aes(slope = 16, intercept = 0)) #specifies slope and intercept
 print(NvsP)
 
 ```
@@ -177,14 +185,14 @@ Nutrientplot4 <-
                stackdir = "center", position = "dodge", dotsize = 2) #
 print(Nutrientplot4)
 
-# Violin plot
+# Violin plot, box plots show summary statistics, violin plots show density plots like a rotated density plot
 Nutrientplot5 <-
   ggplot(PeterPaul.chem.nutrients.gathered, aes(x = lakename, y = concentration)) +
   geom_violin(aes(color = nutrient)) #
 print(Nutrientplot5)
 
 # Frequency polygons
-# Using a tidy dataset
+# Using a tidy dataset, no legend 
 Nutrientplot6 <-
   ggplot(PeterPaul.chem.nutrients) +
   geom_freqpoly(aes(x = tn_ug), color = "darkred") +
@@ -194,7 +202,7 @@ Nutrientplot6 <-
   geom_freqpoly(aes(x = po4), color = "red") 
 print(Nutrientplot6)
 
-# Using a gathered dataset
+# Using a gathered dataset, easier to generate plots, has legend
 Nutrientplot7 <-   
   ggplot(PeterPaul.chem.nutrients.gathered) +
   geom_freqpoly(aes(x = concentration, color = nutrient))
@@ -203,7 +211,7 @@ print(Nutrientplot7)
 # Frequency polygons have the risk of becoming spaghetti plots. 
 # See <https://www.data-to-viz.com/caveat/spaghetti.html> for more info.
 
-# Ridgeline plot
+# Ridgeline plot, plot that shows the density of the distribution over time
 Nutrientplot6 <-
   ggplot(PeterPaul.chem.nutrients.gathered, aes(y = nutrient, x = concentration)) +
   geom_density_ridges(aes(fill = lakename), alpha = 0.5) #
