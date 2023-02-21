@@ -35,13 +35,13 @@ This exercise accompanies the lessons in Environmental Data Analytics on Data Vi
 library(tidyverse); library(lubridate); library(here); library(cowplot)
 here()
 
-PeterPaul <- read.csv(
-  file=here("NTL-LTER_Lake_Chemistry_Nutrients_PeterPaul_Processed.csv"), 
+PeterPaul.chem.nutrients <- read.csv(
+  file=here("Data/Processed_KEY/NTL-LTER_Lake_Chemistry_Nutrients_PeterPaul_Processed.csv"), 
   stringsAsFactors = TRUE
 )
 
 Litter <- read.csv(
-  file=here("Data/Processed/NEON_NIWO_Litter_mass_trap_Processed.csv"), 
+  file=here("Data/Processed_KEY/NEON_NIWO_Litter_mass_trap_Processed.csv"), 
   stringsAsFactors = TRUE
 )
 
@@ -60,6 +60,19 @@ Litter$collectDate <- ymd(Litter$collectDate)
 
 ```{r build plot theme}
 #3
+my_theme <- theme_base() + 
+  theme(
+    axis.line = element_line(
+      linewidth = 3, 
+      colour = "black"),
+    plot.background = element_rect(
+      color='grey'
+    ),
+    plot.title = element_text(
+      color='blue'
+    )
+    
+  )
 
 ```
 
@@ -70,7 +83,23 @@ For numbers 4-7, create ggplot graphs and adjust aesthetics to follow best pract
 
 ```{r plot total P vs PO4}
 #4 
-
+Plot1 <- PeterPaul.chem.nutrients %>% 
+  ggplot(aes(
+      x=po4,
+      y=tp_ug,
+      color= lakename)
+      ) + 
+  geom_point(size=0.5, alpha=0.5) + #alpha sets transparency
+  facet_wrap(vars(lakename)) +
+  labs(title="Total Phosphorus by Phosphate",
+       x="Phosphate", 
+       y="Total Phosphorus",
+       color = "lakename"
+       )+ 
+  geom_smooth(method=lm, color = "black") +
+  xlim(0, 25) +
+  ylim(0, 75)
+Plot1
 ```
 
 
@@ -80,6 +109,23 @@ Tip: R has a build in variable called `month.abb` that returns a list of months;
 
 ```{r Create boxplots}
 #5 
+Plot2 <- PeterPaul.chem.nutrients %>% 
+  ggplot(aes(
+      x=month,
+      color= lakename)
+      ) + 
+  geom_boxplot() +
+  geom_point(size=0.5, alpha=0.5) + #alpha sets transparency
+  facet_wrap(vars(lakename)) +
+  labs(title="Total Phosphorus by Phosphate",
+       x="Phosphate", 
+       y="Total Phosphorus",
+       color = "lakename"
+       )+ 
+  geom_smooth(method=lm, color = "black") +
+  xlim(0, 25) +
+  ylim(0, 75)
+Plot2
 
 ```
 
