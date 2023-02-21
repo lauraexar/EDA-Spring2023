@@ -46,13 +46,13 @@ ggplot(data=data.frame(x=0,y=0))+
   geom_text(
     x=0,
     y=0.025,
-    label=expression(paste("Mean is ", mu,",", R^{2},'=0.6'))
+    label=expression(paste("Mean is ", mu,",", R^{2},'=0.6')) #paste brinsg together strings, paste0 does not insert spaces, paste adds a space
     )
 
 #Print the plot
 print(Plot_text)
 
-#Save the plot
+#Save the plot, specify output file name and different parameters
 ggsave(
   filename = "./Output/Plot_text.jpg",
   plot = Plot_text, 
@@ -92,19 +92,50 @@ EPAair$Date <- ymd(EPAair$Date)
 Say we want to plot the number of records each month in the Peter/Paul lakes dataset. How might we do that? What challenges do we face? 
 
 ```{r Plot the number of records by month}
-#What kind of values are months?
+#What kind of values are months? Integer
+class(PeterPaul.chem.nutrients$month)
+glimpse(PeterPaul.chem.nutrients$month) #would also work
+str(PeterPaul.chem.nutrients$month) #same as glimpse
 
-#List unique values
+#List unique values? 5, 6, 7, 8, 9, 10, 11, 2
+unique(PeterPaul.chem.nutrients$month)
 
 #Plot how many Lake observations occur each month
+ggplot(PeterPaul.chem.nutrients,
+       aes(x=month)) +
+  geom_histogram(bins=12)
 
 #Convert month to a factor -- with 12 levels, labelled with month names
+factor(PeterPaul.chem.nutrients$month, 
+       levels = 1:12, 
+       labels = month.abb)
 
-#Try again: Plot how many Lake observations occur each month
+#Try again: Plot how many Lake observations occur each month, helpful for assignment, factors are categories and factors have levels
+ggplot(PeterPaul.chem.nutrients,
+       aes(x=factor(month, levels=1:12, labels=month.abb))) +
+  geom_bar() + 
+  scale_x_discrete(drop=FALSE) + #numbers are categories, not discrete anymore
+  labs(
+    title = "My Plot",
+    x = "Month")
 
 #Alter to include missing months
 
-#Tidy up the code
+
+#Tidy up the code, NEED TO FINISH FROM SLIDES
+the_plot <- PeterPaul.chem.nutrients %>%
+  ggplot(
+    aes(x=factor(
+      month, 
+      levels=1:12,
+      labels=month.abb)
+      )
+  ) + 
+geom_bar() +
+  scale_alpha_discrete(
+    name="Month",
+    drop=FALSE
+  )
 
 ```
 
@@ -146,10 +177,15 @@ surface_temp_1999_plot
 surface_temp_1999_plot + 
   theme_gray()
 
-#Apply a ggtheme
+#Apply a ggtheme, mimicks the WSJ
 surface_temp_1999_plot + 
   theme_wsj() + 
   scale_color_wsj()
+
+#mimicks Excel
+surface_temp_1999_plot + 
+  theme_excel() + 
+  scale_color_excel()
 
 #Add a title
 surface_temp_1999_plot + 
@@ -226,9 +262,23 @@ Exercise: build your own scatterplots of PeterPaul.chem.nutrients
 
 # 1. 
 # Plot surface temperatures by day of  year. 
-# Color your points by year, and facet by lake in two rows.
+# Color your points by year, and facet by lake in two rows., by something = x axis
 # Change the ylab name
-
+Plot1 <- PeterPaul.chem.nutrients %>% 
+  filter(depth == 0) %>%
+  ggplot(aes(
+      x=daynum,
+      y=temperature_C,
+      color=year4)
+      ) + 
+  geom_point(size=0.5, alpha=0.5) + #alpha sets transparency
+  facet_wrap(vars(lakename)) +
+  labs(title="Surface Temperature vs Day of Year by Year",
+       x="Day of Year", 
+       y="Surface Temperature (C°)",
+       color = "Year"
+       )
+Plot1
 
 #2. 
 # Plot temperature by date. Color your points by depth.
