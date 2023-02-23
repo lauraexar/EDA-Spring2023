@@ -31,21 +31,21 @@ This exercise accompanies the lessons in Environmental Data Analytics on Data Vi
 2. Make sure R is reading dates as date format; if not change the format to date.
 
 ```{r initialize project}
-#1 
+#1 Loaded packages
 library(tidyverse); library(lubridate); library(here); library(cowplot)
-here()
+here(); library(ggthemes)
 
+#Uploaded datafiles
 PeterPaul.chem.nutrients <- read.csv(
   file=here("Data/Processed_KEY/NTL-LTER_Lake_Chemistry_Nutrients_PeterPaul_Processed.csv"), 
   stringsAsFactors = TRUE
 )
-
 Litter <- read.csv(
   file=here("Data/Processed_KEY/NEON_NIWO_Litter_mass_trap_Processed.csv"), 
   stringsAsFactors = TRUE
 )
 
-#2 
+#2 Changed dates to date format
 PeterPaul.chem.nutrients$sampledate <- ymd(PeterPaul.chem.nutrients$sampledate)
 Litter$collectDate <- ymd(Litter$collectDate)
 
@@ -59,7 +59,7 @@ Litter$collectDate <- ymd(Litter$collectDate)
  * Legend
 
 ```{r build plot theme}
-#3
+#3 Built my theme
 my_theme <- theme_base() + 
   theme(
     axis.line = element_line(
@@ -82,24 +82,23 @@ For numbers 4-7, create ggplot graphs and adjust aesthetics to follow best pract
 4. [NTL-LTER] Plot total phosphorus (`tp_ug`) by phosphate (`po4`), with separate aesthetics for Peter and Paul lakes. Add a line of best fit and color it black. Adjust your axes to hide extreme values (hint: change the limits using `xlim()` and/or `ylim()`).
 
 ```{r plot total P vs PO4}
-#4 
-Plot1 <- PeterPaul.chem.nutrients %>% 
+#4 Plotted total phosphorus by total phosphate
+Phosphorus.by.Phosphate <- PeterPaul.chem.nutrients %>% 
   ggplot(aes(
       x=po4,
       y=tp_ug,
       color= lakename)
       ) + 
   geom_point(size=0.5, alpha=0.5) + #alpha sets transparency
-  facet_wrap(vars(lakename)) +
   labs(title="Total Phosphorus by Phosphate",
        x="Phosphate", 
        y="Total Phosphorus",
-       color = "lakename"
+       color = "Lake Name"
        )+ 
-  geom_smooth(method=lm, color = "black") +
-  xlim(0, 25) +
-  ylim(0, 75)
-Plot1
+  geom_smooth(method=lm) +
+  xlim(0, 40) +
+  ylim(0, 100)
+Phosphorus.by.Phosphate
 ```
 
 
@@ -108,43 +107,116 @@ Plot1
 Tip: R has a build in variable called `month.abb` that returns a list of months;see <https://r-lang.com/month-abb-in-r-with-example>
 
 ```{r Create boxplots}
-#5 
-Plot2 <- PeterPaul.chem.nutrients %>% 
+#5 Plotted Temperature by Month
+Temp <- PeterPaul.chem.nutrients %>% 
   ggplot(aes(
-      x=month,
+      x=factor(month, levels=1:12, labels=month.abb),
+      y=temperature_C,
+      color= lakename)
+      ) + 
+  geom_boxplot() + 
+  scale_x_discrete(
+    name="Month",
+    drop=F) +
+  labs(title="Temperature by Month",
+       x="Month", 
+       y="Temperature (C°)",
+       color = "Lake Name"
+       )
+Temp
+
+#Plotted TP by Month
+TP <- PeterPaul.chem.nutrients %>% 
+  ggplot(aes(
+      x=factor(month, levels=1:12, labels=month.abb),
+      y=tp_ug,
       color= lakename)
       ) + 
   geom_boxplot() +
-  geom_point(size=0.5, alpha=0.5) + #alpha sets transparency
-  facet_wrap(vars(lakename)) +
-  labs(title="Total Phosphorus by Phosphate",
-       x="Phosphate", 
-       y="Total Phosphorus",
-       color = "lakename"
-       )+ 
-  geom_smooth(method=lm, color = "black") +
-  xlim(0, 25) +
-  ylim(0, 75)
-Plot2
+  scale_x_discrete(
+    name="Month",
+    drop=F) +
+  labs(title="Total TP by Month",
+       x="Month", 
+       y="Total TP",
+       color = "Lake Name"
+       )
+TP
 
+#Plotted TN by Month
+TN <- PeterPaul.chem.nutrients %>% 
+  ggplot(aes(
+     x=factor(month, levels=1:12, labels=month.abb),
+      y=tn_ug,
+      color= lakename)
+      ) + 
+  geom_boxplot() + 
+  scale_x_discrete(
+    name="Month",
+    drop=F) +
+  labs(title="Total TN by Month",
+       x="Month", 
+       y=" Total TN",
+       color = "Lake Name"
+       )
+TN
+
+#Created cowplot with all three graphs and no legend
+library(cowplot)
+Cowplot <- plot_grid(Temp + theme(legend.position = "none"), TP + theme(legend.position = "none"), TN + theme(legend.position = "none"), ncol = 1, align = "h")
+Cowplot
+
+#Created a legend
+legend <- get_legend(Temp + theme(legend.position="bottom"))
+
+#Created a cowplot with a legend
+Cowplot_legend <- plot_grid(Cowplot, legend, ncol=1, rel_heights = c(1, 0.1))
+Cowplot_legend
 ```
 
 Question: What do you observe about the variables of interest over seasons and between lakes? 
 
-> Answer: 
+> Answer: Temperature in both lakes increases from May to July, and then decreases again, as expected. It also seems that the range in temperature is greater during the summer months. TP seems to increase overall throughout the year, and there is generally a greater amount of TP in Peter Lake than in Paul Lake. TN was overall the highest in August, although TN appears to be the most stable throughout the year. Peter Lake also appears to have higher amounts of TP than Paul Lake.
 
 6. [Niwot Ridge] Plot a subset of the litter dataset by displaying only the "Needles" functional group. Plot the dry mass of needle litter by date and separate by NLCD class with a color aesthetic. (no need to adjust the name of each land use)
 
 7. [Niwot Ridge] Now, plot the same plot but with NLCD classes separated into three facets rather than separated by color. 
 
 ```{r Plot litter}
-#6
+#6 Plotted Dry Mass of Needle Litter by Date
+NeedleMass <- Litter %>% 
+  filter(functionalGroup == 'Needles') %>% 
+  ggplot(
+    mapping = aes(
+      x=collectDate,
+      y=dryMass,
+      color=nlcdClass)
+    ) + 
+  geom_point() +
+  labs(title="Dry Mass of Needle Litter by Date",
+       x="Date", 
+       y="Dry Mass of Needle Litter",
+       color="NLCD Class"
+  )
+NeedleMass
 
-
-#7
-
+#7 Plotted Dry Mass of Needle Litter by Date, separated by NLCD Class
+NeedleMass.by.Class <- Litter %>% 
+  filter(functionalGroup == 'Needles') %>% 
+  ggplot(
+    mapping = aes(
+      x=collectDate,
+      y=dryMass)
+    ) + 
+  geom_point() +
+  facet_wrap(~nlcdClass, ncol=3) +
+  labs(title="Dry Mass of Needle Litter by Date",
+       x="Date", 
+       y="Dry Mass of Needle Litter"
+  )
+NeedleMass.by.Class
 
 ```
 Question: Which of these plots (6 vs. 7) do you think is more effective, and why? 
 
-> Answer:
+> Answer: I think that Plot 6 is more effective, because it was easier for me to directly compare the dry mass of needle litter betweeen the three classes when they are on the same plot, rather than when they are separated into different plots. I can see how Plot 7 would be helpful if you were more interested in seeing how the needle mass in each class changes over time, because Plot 6 has so many points close together that some may be obscured.
