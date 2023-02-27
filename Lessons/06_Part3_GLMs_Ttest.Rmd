@@ -14,7 +14,7 @@ editor_options:
 ## Set up your session
 
 ```{r, message = FALSE}
-#install.packages('formatR')
+install.packages('formatR')
 knitr::opts_chunk$set(tidy.opts=list(width.cutoff=80), tidy=TRUE)
 
 library(tidyverse)
@@ -70,7 +70,7 @@ summary(EPAair$Ozone) #mean = 40.88 and median = 40
 length(EPAair$Ozone) #8976 observations
 
 O3.onesample <- t.test(EPAair$Ozone, mu = 50, alternative = "less")
-O3.onesample
+O3.onesample #df (related to number of observations) and p value, p value less than 0.05, so we will reject the null hypothesis, we know that population mean is less than or equal to 50
 
 Ozone.plot <- ggplot(EPAair, aes(x = Ozone)) +
   geom_density(fill = "gray") +
@@ -86,7 +86,7 @@ O3.onesample2
 
 Write a sentence or two about the results of this test. Include both the results of the test and an interpretation that puts the findings in context of the research question.
 
-> 
+> There are no explanatory vairables. There's just one coefficient, which is the mean that we had before.
 
 ### Two-sample t-test
 
@@ -104,11 +104,11 @@ ggplot(EPAair, aes(x = Ozone, color = as.factor(Year))) +
 #EPAair$Ozone will be our continuous dependent variable
 #EPAair$Year will be our categorical variable with two levels (2018 and 2019)
 O3.twosample <- t.test(EPAair$Ozone ~ EPAair$Year)
-O3.twosample
+O3.twosample #reject null hypothesis that the two means are the same
 
 # Format as a GLM
 O3.twosample2 <- lm(EPAair$Ozone ~ EPAair$Year)
-summary(O3.twosample2)
+summary(O3.twosample2) #year is a predictor of ozone levels
 
 ```
 
