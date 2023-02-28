@@ -76,7 +76,7 @@ For the NTL-LTER dataset, can we predict irradiance (light level) from depth?
 irradiance.regression <- lm(PeterPaul.chem.nutrients$irradianceWater ~ PeterPaul.chem.nutrients$depth)
 
 # another way to format the lm() function
-irradiance.regression <- lm(data = PeterPaul.chem.nutrients, irradianceWater ~ depth) #irradiance watre by depth
+irradiance.regression <- lm(data = PeterPaul.chem.nutrients, irradianceWater ~ depth) #irradiance water by depth
 summary(irradiance.regression)
 
 # Correlation
