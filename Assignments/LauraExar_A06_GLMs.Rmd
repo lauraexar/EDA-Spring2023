@@ -25,19 +25,25 @@ This exercise accompanies the lessons in Environmental Data Analytics on general
 
 2. Build a ggplot theme and set it as your default theme.
 
-```{r setup2}
+```{r Set up Session}
 #1
+#Checked working directory
+library(here)
 here()
+#Loaded packages
 library(tidyverse); library(agricolae); library(ggthemes); library(lubridate)
 
+#Imported the data
 Lake.chem.phys <- read.csv(
 file=here("Data/Raw/NTL-LTER_Lake_ChemistryPhysics_Raw.csv"),
 stringsAsFactors = TRUE
 )
 
+#Set date columns to date objects
 Lake.chem.phys$sampledate <- mdy(Lake.chem.phys$sampledate) #do I need to change other date columns like year?
 
 #2
+#Built and set a theme
 my_theme <- theme_base() +
 theme(
 axis.line = element_line(
@@ -73,12 +79,14 @@ Ha: Mean lake temperature recorded during July does change with depth across all
 
 ```{r scatterplot}
 #4
+#Wrangled the dataset
 Lake.chem.phys <- Lake.chem.phys %>%
-  filter(daynum == 182:212) %>%
+  filter(month(sampledate) == 7) %>%
   select(lakename, year4, daynum, depth, temperature_C) %>%
   na.omit()
 
 #5
+#Created a scatterplot of temperature by depth
 Temp.by.Depth <- Lake.chem.phys %>%
   ggplot(aes(x=depth, y=temperature_C)) +
   geom_point(size=0.5) + 
@@ -87,7 +95,6 @@ Temp.by.Depth <- Lake.chem.phys %>%
   y="Temperature") + 
     geom_smooth(method=lm, se=FALSE) +
     ylim(0, 35)
-
 Temp.by.Depth
 
 ```
@@ -95,24 +102,23 @@ Temp.by.Depth
 
 6. Interpret the figure. What does it suggest with regards to the response of temperature to depth? Do the distribution of points suggest about anything about the linearity of this trend?
 
-> Answer: This figure suggests that temperature decreases as depth increases. Overall, the points are distributed fairly close to the trend line, although there are a few outliers at around 6 meters and between 11 and 12 meters.
+> Answer: This figure suggests that temperature decreases as depth increases. Overall, the points have a large distributed at shallower depths (from around 0 to 7), but the distribution gets smaller at deeper depths.
 
 
 7. Perform a linear regression to test the relationship and display the results
 
 ```{r linear.regression}
 #7
+#Performed a linear regression of temperature by depth
 Temp.by.Depth.Reg <- lm(data = Lake.chem.phys, temperature_C ~ depth)
 summary(Temp.by.Depth.Reg)
 
 ```
 
 
-8. Interpret your model results in words. Include how much of the variability in temperature is explained by changes in depth, the degrees of freedom on which this finding is based, and the statistical significance of the result. Also mention how much temperature is predicted to change for every 1m change in depth. 
-#how much is temperature expected to change for every 1m depth
+8. Interpret your model results in words. Include how much of the variability in temperature is explained by changes in depth, the degrees of freedom on which this finding is based, and the statistical significance of the result. Also mention how much temperature is predicted to change for every 1m change in depth.
 
-> Answer: The R-squared is 0.84, which means that 84% of the variability in temperature can be explained by changes in depth. There are 10 degrees of freedom. The p-value is 1.577e-05; because the p-value is less than 0.05, we can reject the null hypothesis and accept the alterantive hypothesis that the variability in temperature can be explained by changes in depth. For every 1m change in depth, the temperature is expected to change 1.718 degrees C. 
-
+> Answer: The R-squared is 0.7387, which means that 73.87% of the variability in temperature can be explained by changes in depth. There are 9726 degrees of freedom. The p-value is < 2.2e-16; because the p-value is less than 0.05, we can reject the null hypothesis and accept the alterantive hypothesis that the variability in temperature can be explained by changes in depth. For every 1 m change in depth, the temperature is expected to change 1.94621 degrees C. 
 
 ---
 
@@ -126,19 +132,21 @@ Let's tackle a similar question from a different approach. Here, we want to expl
 
 ```{r temperature.model}
 #9
+#Performed a multiple regression of temperature by depth, year, and daynum
 Lake.ALL <- lm(data=Lake.chem.phys, temperature_C ~ year4 + daynum + depth)
 summary(Lake.ALL)
 step(Lake.ALL)
 
 #10
-Lake.best <- lm(data=Lake.chem.phys, temperature_C ~ depth)
+#Ran multiple regression of temperature by depth
+Lake.best <- lm(data=Lake.chem.phys, temperature_C ~ year4 + daynum + depth)
 summary(Lake.best)
 
 ```
 
 11. What is the final set of explanatory variables that the AIC method suggests we use to predict temperature in our multiple regression? How much of the observed variance does this model explain? Is this an improvement over the model using only depth as the explanatory variable?
 
-> Answer: Depth is the final set of explanatory variables that the AIC method suggests we use. The R-squared is 0.84, which means that 84% of the variability in temperature can be explained by changes in depth. It is the same as the model using only depth as the explantory variable, because this model also only uses depth as an explanatory variable.
+> Answer: Year4, daynum, and depth are the final set of explanatory variables that the AIC method suggests we use. The R-squared is 0.7411, which means that 74.11% of the variability in temperature can be explained by changes in depth. It is similiar, but a slight improvement, to the model using only depth as the explantory variable, because this model also only uses more explanatory variable that are all significant.
 
 ---
 ## Analysis of Variance
@@ -147,9 +155,13 @@ summary(Lake.best)
 
 ```{r anova.model}
 #12
+#Ran an ANOVA model to text whether the different lakes have different 
+#temperatures
 Lake.Temps.anova <- aov(data = Lake.chem.phys, temperature_C ~ lakename)
 summary(Lake.Temps.anova)
 
+#Ran a linear model to text whether the different lakes have different 
+#temperatures
 Lake.Temps.anova2 <- lm(data = Lake.chem.phys, temperature_C ~ lakename)
 summary(Lake.Temps.anova2)
 
@@ -157,7 +169,7 @@ summary(Lake.Temps.anova2)
 
 13. Is there a significant difference in mean temperature among the lakes? Report your findings. 
 
-> Answer: No, because the models how a p-value of 0.2432, which is greater than 0.05, there is not a significant difference in mean temperature among the lakes.
+> Answer: Yes, because the models how a p-value of < 2.2e-16, which is less than 0.05, we reject the null hypthesis and accept the alternative hypothesis: there is a significant difference in mean temperature among the lakes.
 
 
 
@@ -165,13 +177,14 @@ summary(Lake.Temps.anova2)
 
 ```{r scatterplot.2}
 #14.
+#Created a scatterplot that shows temperature by depth
 Temp.by.Depth.Lake <- Lake.chem.phys %>%
   ggplot(aes(x=depth, y=temperature_C, color= lakename)) +
   geom_point(alpha=0.5) + #alpha sets transparency
   labs(title="Temperature by Depth",
        x="Depth",
-       y="Temperature",
-       color = "Lake Name")+
+       y="Temperature", 
+       color="")+
   geom_smooth(method = "lm", se = FALSE) +
   ylim(0,35)
 Temp.by.Depth.Lake
@@ -182,32 +195,35 @@ Temp.by.Depth.Lake
 
 ```{r tukey.test}
 #15
-Temp.by.Depth.Lake.anova <- aov(data = Lake.chem.phys, temperature_C ~ depth * lakename)
-TukeyHSD(Temp.by.Depth.Lake.anova)
+#Ran an Tukey HSD to determine which lakes have different means
+TukeyHSD(Lake.Temps.anova)
+Group <- HSD.test(Lake.Temps.anova, 'lakename', group=T)
+Group
 
 ```
 
 16.From the findings above, which lakes have the same mean temperature, statistically speaking, as Peter Lake? Does any lake have a mean temperature that is statistically distinct from all the other lakes?
 
->Answer:
-
+>Answer: Paul Lake and Ward Lake have the same mean temperature as Peter Lake, statistically speaking, as Peter Lake. None of the lakes have a mean temperature that is statistically distinct from all the other lakes.
  
 
 17. If we were just looking at Peter Lake and Paul Lake. What's another test we might explore to see whether they have distinct mean temperatures? 
 
->Answer: 
-
+>Answer: If we are just looking at Peter Lake and Paul Lake, we could use the two sample t-test to explore whether they have distinct mean temperatures. 
 
 
 18. Wrangle the July data to include only records for Crampton Lake and Ward Lake. Run the two-sample T-test on these data to determine whether their July temperature are same or different. What does the test say? Are the mean temperatures for the lakes equal? Does that match you answer for part 16?
 
 ```{r t.test}
+#Wrangled the data to only include Crampton Lake and Ward Lake
 Lake.chem.phys.2Lakes <- Lake.chem.phys %>%
   filter(lakename == "Crampton Lake" | lakename == "Ward Lake")
 
+#Ran a two sample t-test to determine if the lake's July temperatures are 
+#the same or different
 Lake.twosample <- t.test(Lake.chem.phys.2Lakes$temperature_C ~ Lake.chem.phys.2Lakes$lakename)
 Lake.twosample
 
 ```
 
->Answer: 
+>Answer: The test says that the mean July temperature for Crampton Lake is 15.35189 C, and the mean July temperature for Ward Lake is 14.45862 C. Because the p-value > 0.05, the mean temperatures for the lakes are not statistically significantly distinct. This confirms my results for part 16.
