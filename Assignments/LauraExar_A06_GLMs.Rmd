@@ -40,7 +40,7 @@ stringsAsFactors = TRUE
 )
 
 #Set date columns to date objects
-Lake.chem.phys$sampledate <- mdy(Lake.chem.phys$sampledate) #do I need to change other date columns like year?
+Lake.chem.phys$sampledate <- mdy(Lake.chem.phys$sampledate)
 
 #2
 #Built and set a theme
