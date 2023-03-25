@@ -53,6 +53,10 @@ wind_data$DATE <- ym(wind_data$DATE)
 
 Time series are a special class of dataset, where a response variable is tracked over time. The frequency of measurement and the timespan of the dataset can vary widely. At its most simple, a time series model includes an explanatory time component and a response variable. Mixed models can include additional explanatory variables (check out the `nlme` and `lme4` R packages). We will cover a few simple applications of time series analysis in these lessons, with references for how to take analyses further.
 
+**time series need to have a time component, equally spaced observations, and no missing observations, drop nas is not an option to deal with data gaps**
+
+**time series have four components: trend, seasonality, cycles (longer duration patterns on dataset not related to any calendar event), randomness**
+
 ### Opportunities
 
 Analysis of time series presents several opportunities. For environmental data, some of the most common questions we can answer with time series modeling are:
@@ -64,7 +68,7 @@ Analysis of time series presents several opportunities. For environmental data, 
 
 Time series datasets come with several caveats, which need to be addressed in order to effectively model the system. A few common challenges that arise (and can occur together within a single dataset) are: 
 
-* **Autocorrelation**: Data points are not independent from one another (i.e., the measurement at a given time point is dependent on previous time point(s))
+* **Autocorrelation**: Data points are not independent from one another (i.e., the measurement at a given time point is dependent on previous time point(s)), self correlation of a series that gives us information about the correlation of current observations with previous observations, how variables are related over time
 * **Data gaps**: Data are not collected at regular intervals, necessitating *interpolation* between measurements.
 * **Seasonality**: seasonal patterns in variables occur at regular intervals, impeding clear interpretation of a monotonic (unidirectional) trend.
 * **Heteroscedasticity**: The variance of the time series is not constant over time
@@ -99,6 +103,8 @@ EnoDischarge.late <- EnoDischarge.complete %>%
 
 ## Decomposing a time series dataset
 
+**stl and decompose function both lead to the same decomposition, tries to separate series into three other series: trend part, seasonal part, and random part (observed series - trend - seasonal)**
+
 A given time series can be made up of several component series: 
 
 1. A **seasonal** component, which repeats over a fixed known period (e.g., seasons of the year, months, days of the week, hour of the day)
@@ -115,7 +121,7 @@ We first need to turn the discharge data into a time series object in R. This is
 Note: time series objects must be equispaced. In our case, we have daily data with no NAs in the data frame, so we don't need to worry about this. We will cover how to address data that are not equispaced later in the lesson.
 
 ```{r}
-EnoDischarge.late_ts <- ts(EnoDischarge.late$discharge.mean, start = c(1985,1), frequency = 365) #defines column, starting point (year month), and frequency
+EnoDischarge.late_ts <- ts(EnoDischarge.late$discharge.mean, start = c(1985,1), frequency = 365) #defines column, starting point (year month), and frequency (related to when the observation starts repeating itself, monthly data has frequency of 12, yearly is 1, daily is 365)
 ```
 
 The `stl` function decomposes the time series object into its component parts. We must specify that the window for seasonal extraction is either "periodic" or a specific number of at least 7. The decomposition proceeds through a loess (locally estimated scatterplot smoothing) function.
@@ -156,12 +162,16 @@ Note that the decomposition can yield negative values when we apply a seasonal a
 
 ## Trend analysis
 
+**overall trend on the dataset, overall increase or decrease**
+
 Two types of trends may be present in our time series dataset: **monotonic/deterministic** or **stochastic**. Monotonic trends are a gradual shift over time that is consistent in direction, for example in response to land use change. 
 
 A third type of trend we haven't talked about is the **step** trend, also knows as a level shift. Step trends are a distinct shift at a given time point, for example in response to a policy being enacted. 
 
 
 ### Monotonic trend analysis
+
+**monotonic- always going the same direction (either increasing or decreasing), but at different paces**
 
 In general, detecting a monotonic trend requires a long sequence of data with few gaps. If we are working with monthly data, a time series of at least five years is recommended. Gaps can be accounted for, but a gap that makes up more than 1/3 of the sampling period is generally considered the threshold for considering a gap to be too long (a step trend analysis might be better in this situation). 
 
