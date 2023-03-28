@@ -108,7 +108,7 @@ st_bbox(counties_sf)
 head(counties_sf)
 
 #Plot the data, colored by area of land in each county
-mapView(counties_sf, zcol = "AWATER")
+mapView(counties_sf, zcol = "ALAND")
 ```
 
 ### 2.2.2 Read in and explore 8-digit HUC watersheds for NC
@@ -117,7 +117,8 @@ mapView(counties_sf, zcol = "AWATER")
 
 ```{r read HUCs shapefile}
 #Read the shapefile into an sf dataframe named "huc8_sf"
-
+huc8_sf <- st_read('./Data/Spatial/NCHUC8.shp') %>% 
+  filter(STATEFP == 37) #Filter for just NC Counties
 
 #Reveal the columns
 
