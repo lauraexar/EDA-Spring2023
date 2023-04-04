@@ -41,7 +41,7 @@ Web scraping is the process of pulling data directly from websites. Copy and pas
 You might now feel that web scraping isn't always legitimate - and you're right! Not all content providers want their sites to be scraped. To ensure that your web scraping is done ethically, check out this great article covering the ethics and legality of web scraping: <https://prowebscraper.com/blog/is-web-scraping-legal/>
 
 
-> For discussion: Can you give examples of ethical and unethical web scraping?
+> For discussion: Can you give examples of ethical and unethical web scraping? 
 
 
 ## 1.1 Exploring the data we want to scrape
@@ -68,8 +68,8 @@ The `read_html()` function returns a list of the two elements, <head> and <body>
  * The <body> mostly contains the content that is displayed in your browser.
  
 EXERCISE: Open the source of the web page in your browser (<ctrl>-<u>).
-* Do you see the <head> and <body> sections?
-* Do you see where it states the registrant? ("American & Efird, Inc.")
+* Do you see the <head> and <body> sections? Yes
+* Do you see where it states the registrant? ("American & Efird, Inc.") 
 
 HTML files follow a syntax of **tags** (what falls beteween the `<` and `>`) and **values**. Tags can indicate what kind of hyper-text element it is, and they can also include **properties** such as "id" and "class" to which specific **property values** can be assigned. This is important to know at some level, because it's this system of tags, properties, and property values that allow us to target specific elements in a web page so that we can scrape the data we want. You'll also see that items are hierarchical with some items (e.g. <table> containing other items <tr>).
 
@@ -135,17 +135,17 @@ max_withdrawals
 Now that we've scraped the data we want into our coding environment, the next step is to wrangle these data into formats we can work with more easily, i.e. a dataframe. Here, we emply the techniques we've learned earlier in this class to do this and then plot the data. 
 ```{r create.dataframe.from.scrapings}
 #Create a dataframe of withdrawals
-df_withdrawals <- data.frame("Month" = rep(1:12),
-                             "Year" = rep(2000,12),
+df_withdrawals <- data.frame("Month" = rep(1:12), #created a month
+                             "Year" = rep(2000,12), #created a year
                              "Avg_Withdrawals_mgd" = as.numeric(avg_withdrawals),
                              "Max_Withdrawals_mgd" = as.numeric(max_withdrawals))
 
 #Modify the dataframe to include the facility name and type as well as the date (as date object)
 df_withdrawals <- df_withdrawals %>% 
-  mutate(Registrant = !!the_registrant,
+  mutate(Registrant = !!the_registrant, #setting the variables
          Facility_name = !!the_facility_name,
          Facility_type = !!the_facility_type,
-         Date = my(paste(Month,"-",Year)))
+         Date = my(paste(Month,"-",Year))) #converting month and year objects to a date
 
 #Plot 
 ggplot(df_withdrawals,aes(x=Date,y=Avg_Withdrawals_mgd)) + 
@@ -169,7 +169,7 @@ This begins by setting the parameters of the page we'll be scraping to variables
 ```{r streamline.the.process}
 #Construct the scraping web address, i.e. its URL
 the_base_url <- 'https://www.ncwater.org/WUDC/app/WWATR/report/view'
-the_facility <- '0004-0001'
+the_facility <- '0218-0238'
 the_year <- 2015
 the_scrape_url <- paste0(the_base_url, '/', the_facility, '/', the_year)
 print(the_scrape_url)
@@ -202,7 +202,7 @@ df_withdrawals <- data.frame("Month" = rep(1:12),
 ggplot(df_withdrawals,aes(x=Date,y=Avg_Withdrawals_mgd)) + 
   geom_line() + 
   geom_smooth(method="loess",se=FALSE) +
-  labs(title = paste("2020 Water usage data for",the_registrant),
+  labs(title = paste(the_year," Water usage data for",the_registrant),
        subtitle = the_facility_name,
        y="Withdrawal (mgd)",
        x="Date")
@@ -254,7 +254,7 @@ scrape.it <- function(the_year, the_facility){
 
 ```{r test.the.function}
 #Run the function
-the_df <- scrape.it(2018,'0004-0001')
+the_df <- scrape.it(2010,'0004-0001')
 view(the_df)
 
 ```
@@ -338,7 +338,7 @@ df_2020 <- bind_rows(dfs_2020)
 
 
 #Plot
-ggplot(df_2020,aes(y = Avg_Withdrawals_mgd, x=Facility_type)) +
+ggplot(df_2020,aes(y = Avg_Withdrawals_mgd, x=Facility_name)) +
   geom_boxplot()
 
 ```
